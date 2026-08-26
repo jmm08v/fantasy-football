@@ -9,9 +9,29 @@ The league's real settings — format, roster, FAAB, keeper rules — live in
 `components/data/league.ts` and render through the `Rulebook` section. Only the
 standings and recap entries are placeholder data.
 
+**Live:** https://jmm08v.github.io/fantasy-football/
+
 ```bash
 npm run dev
 ```
+
+## Deploying
+
+Pushing to `main` redeploys — `.github/workflows/deploy.yml` builds the static
+export and publishes it to GitHub Pages. Nothing to run by hand.
+
+Two things make the export work on Pages, and both are easy to break:
+
+- **`NEXT_PUBLIC_BASE_PATH`.** Pages serves from `/fantasy-football`, not the
+  domain root. The workflow sets this; `next.config.ts` feeds it to `basePath`.
+  Locally it's unset, so dev stays at the root.
+- **`lib/asset.ts`.** Next rewrites its own `_next/*` URLs for `basePath`
+  automatically, but a literal string like `"/media/hero.mp4"` is invisible to
+  it — that one works in dev and 404s in production. Route every `public/` file
+  through `asset()`.
+
+To host at a domain root instead (Vercel, Netlify, a custom domain), drop the
+`NEXT_PUBLIC_BASE_PATH` env var from the workflow; `asset()` becomes a no-op.
 
 ---
 
