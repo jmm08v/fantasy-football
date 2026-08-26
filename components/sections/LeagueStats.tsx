@@ -21,8 +21,16 @@ import { CSS_EASE } from "@/lib/motion";
  */
 export function LeagueStats({
   stats,
+  photo = false,
 }: {
   stats: { value: string; label: string }[];
+  /**
+   * Show the tall image beside the stats. With it on, the stat column sticks
+   * while the image scrolls past — that two-rate scroll is the whole point of
+   * the layout. With it off there is nothing to stick against, so the column
+   * un-sticks and centres instead of pinning to a blank half-screen.
+   */
+  photo?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
@@ -39,9 +47,17 @@ export function LeagueStats({
   return (
     <section ref={ref} className="bg-turf">
       <Container className="gap-y-10 py-20 lg:items-start lg:py-32">
-        <MediaSlot label="LEAGUE PHOTO" className="col-span-6 lg:col-span-6" />
+        {photo && (
+          <MediaSlot label="LEAGUE PHOTO" className="col-span-6 lg:col-span-6" />
+        )}
 
-        <div className="col-span-6 flex flex-col gap-y-2 lg:sticky lg:top-24 lg:col-span-6">
+        <div
+          className={
+            photo
+              ? "col-span-6 flex flex-col gap-y-2 lg:sticky lg:top-24 lg:col-span-6"
+              : "col-span-6 flex flex-col gap-y-2 lg:col-start-3 lg:col-end-11"
+          }
+        >
           {stats.map((stat, i) => {
             const on = i === active;
             return (

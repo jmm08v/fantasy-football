@@ -107,16 +107,28 @@ export const RULES = [
   },
 ];
 
-/** Placeholder standings. Replace with your own managers. */
-export const TEAMS = [
-  { name: "Gridiron Heights", manager: "Manager 1", record: "9-3", pf: "1,412.6", streak: "W4" },
-  { name: "Sunday Scaries", manager: "Manager 2", record: "8-4", pf: "1,388.1", streak: "W2" },
-  { name: "Play Action Jackson", manager: "Manager 3", record: "8-4", pf: "1,301.9", streak: "L1" },
-  { name: "The Waiver Wire", manager: "Manager 4", record: "7-5", pf: "1,344.7", streak: "W1" },
-  { name: "Fourth And Long", manager: "Manager 5", record: "6-6", pf: "1,270.3", streak: "L2" },
-  { name: "Hail Mary Inc.", manager: "Manager 6", record: "5-7", pf: "1,255.8", streak: "W1" },
-  { name: "Zero RB Truthers", manager: "Manager 7", record: "4-8", pf: "1,198.4", streak: "L3" },
-  { name: "Backup Plan", manager: "Manager 8", record: "3-9", pf: "1,144.2", streak: "L1" },
+/**
+ * The field. Preseason, so every record is zeroed.
+ *
+ * `manager` is optional — while these entries are people rather than team
+ * names, the standings table drops the Manager column entirely rather than
+ * printing the same string twice. Add `manager` back to any row once real
+ * team names exist and the column returns on its own.
+ */
+export const TEAMS: {
+  name: string;
+  manager?: string;
+  record: string;
+  pf: string;
+  streak: string;
+}[] = [
+  { name: "Danny B", record: "0-0", pf: "0.0", streak: "—" },
+  { name: "Vishan W", record: "0-0", pf: "0.0", streak: "—" },
+  { name: "Robb S", record: "0-0", pf: "0.0", streak: "—" },
+  { name: "John M", record: "0-0", pf: "0.0", streak: "—" },
+  { name: "Allen H", record: "0-0", pf: "0.0", streak: "—" },
+  { name: "Reggi B", record: "0-0", pf: "0.0", streak: "—" },
+  { name: "TBD", record: "0-0", pf: "0.0", streak: "—" },
 ];
 
 export const RECAPS = [

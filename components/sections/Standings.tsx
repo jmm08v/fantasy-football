@@ -15,8 +15,19 @@ export function Standings({
   teams,
 }: {
   title: string;
-  teams: { name: string; manager: string; record: string; pf: string; streak: string }[];
+  teams: {
+    name: string;
+    manager?: string;
+    record: string;
+    pf: string;
+    streak: string;
+  }[];
 }) {
+  // Drop the Manager column entirely when nobody has one, rather than leaving
+  // a column of blanks. Spans are redistributed so the row still totals 12.
+  const showManager = teams.some((t) => t.manager);
+  const nameSpan = showManager ? "lg:col-span-3" : "lg:col-span-5";
+
   return (
     <section className="bg-turf overflow-hidden">
       <Container className="py-20 lg:py-32">
@@ -26,10 +37,19 @@ export function Standings({
 
         <div className="col-span-6 flex flex-col gap-y-2 lg:col-span-12">
           <div className="border-chalk/20 hidden grid-cols-12 gap-x-4 border-b px-10 pb-4 lg:grid">
-            {["#", "TEAM", "MANAGER", "RECORD", "POINTS FOR", "STREAK"].map((h) => (
+            {(showManager
+              ? ["#", "TEAM", "MANAGER", "RECORD", "POINTS FOR", "STREAK"]
+              : ["#", "TEAM", "RECORD", "POINTS FOR", "STREAK"]
+            ).map((h) => (
               <MonoLabel
                 key={h}
-                className={`opacity-40 ${h === "TEAM" ? "col-span-4" : h === "#" ? "col-span-1" : "col-span-2"}`}
+                className={`opacity-40 ${
+                  h === "TEAM"
+                    ? nameSpan
+                    : h === "#"
+                      ? "lg:col-span-1"
+                      : "lg:col-span-2"
+                }`}
               >
                 {h}
               </MonoLabel>
@@ -45,11 +65,13 @@ export function Standings({
                 <MonoLabel className="text-volt col-span-1 group-hover:text-turf">
                   {String(i + 1).padStart(2, "0")}
                 </MonoLabel>
-                <div className="type-card col-span-5 lg:col-span-4">{team.name}</div>
-                <MonoLabel className="col-span-3 opacity-70 lg:col-span-2">{team.manager}</MonoLabel>
-                <MonoLabel className="col-span-1 lg:col-span-2">{team.record}</MonoLabel>
-                <MonoLabel className="col-span-1 lg:col-span-2">{team.pf}</MonoLabel>
-                <MonoLabel className="col-span-1 lg:col-span-2">{team.streak}</MonoLabel>
+                <div className={`type-card col-span-5 ${nameSpan}`}>{team.name}</div>
+                {showManager && (
+                  <MonoLabel className="col-span-3 opacity-70 lg:col-span-2">{team.manager ?? ""}</MonoLabel>
+                )}
+                <MonoLabel className="col-span-2 lg:col-span-2">{team.record}</MonoLabel>
+                <MonoLabel className="col-span-2 lg:col-span-2">{team.pf}</MonoLabel>
+                <MonoLabel className="col-span-2 lg:col-span-2">{team.streak}</MonoLabel>
               </div>
             </Reveal>
           ))}

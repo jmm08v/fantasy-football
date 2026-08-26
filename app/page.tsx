@@ -5,7 +5,6 @@ import { Manifesto } from "@/components/sections/Manifesto";
 import { LeagueStats } from "@/components/sections/LeagueStats";
 import { Pillars } from "@/components/sections/Pillars";
 import { Standings } from "@/components/sections/Standings";
-import { Recaps } from "@/components/sections/Recaps";
 import { Rulebook } from "@/components/sections/Rulebook";
 import { Rules } from "@/components/sections/Rules";
 import { SiteFooter } from "@/components/sections/SiteFooter";
@@ -15,7 +14,6 @@ import {
   KEEPERS,
   LEAGUE,
   PILLARS,
-  RECAPS,
   ROSTER,
   RULES,
   STATS,
@@ -38,7 +36,8 @@ export default function Home() {
       <Rulebook format={FORMAT} faab={FAAB} roster={ROSTER} keepers={KEEPERS} />
       <Rules title="Why These Settings" items={RULES} />
       <Standings title="Standings" teams={TEAMS} />
-      <Recaps title="Latest" items={RECAPS} />
+      {/* Hidden until there are real recaps to publish.
+          <Recaps title="Latest" items={RECAPS} /> */}
       <SiteFooter name={LEAGUE.name} season={LEAGUE.season} />
     </main>
   );
