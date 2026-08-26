@@ -39,19 +39,19 @@ export function LeagueStats({
   return (
     <section ref={ref} className="bg-turf">
       <Container className="gap-y-10 py-20 lg:items-start lg:py-32">
-        <MediaSlot label="LEAGUE PHOTO" className="lg:col-span-6" />
+        <MediaSlot label="LEAGUE PHOTO" className="col-span-6 lg:col-span-6" />
 
-        <div className="flex flex-col gap-y-2 lg:sticky lg:top-24 lg:col-span-6">
+        <div className="col-span-6 flex flex-col gap-y-2 lg:sticky lg:top-24 lg:col-span-6">
           {stats.map((stat, i) => {
             const on = i === active;
             return (
               <div
                 key={stat.value + i}
-                className="relative flex items-center gap-x-6 rounded-full p-6 lg:px-10"
+                className="relative flex flex-col items-start gap-y-3 rounded-[32px] p-6 lg:flex-row lg:items-center lg:gap-x-6 lg:gap-y-0 lg:rounded-full lg:px-10"
               >
                 <div
                   aria-hidden="true"
-                  className="border-chalk pointer-events-none absolute -inset-px z-[1] rounded-full border transition-all duration-700"
+                  className="border-chalk pointer-events-none absolute -inset-px z-[1] rounded-[inherit] border transition-all duration-700"
                   style={{
                     transitionTimingFunction: CSS_EASE.expo,
                     opacity: on ? 1 : 0.2,

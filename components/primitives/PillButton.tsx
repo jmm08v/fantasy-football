@@ -37,6 +37,22 @@ export function PillButton({
   const style = { transitionTimingFunction: CSS_EASE.quart };
 
   if (href) {
+    // next/link is for in-app routes; an off-site URL wants a plain anchor
+    // with the noopener guard that target="_blank" otherwise leaves open.
+    if (/^https?:\/\//.test(href)) {
+      return (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={classes}
+          style={style}
+        >
+          {children}
+          {icon}
+        </a>
+      );
+    }
     return (
       <Link href={href} className={classes} style={style}>
         {children}
