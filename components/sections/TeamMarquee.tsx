@@ -20,12 +20,14 @@ function repeatToFill<T>(items: T[], min: number): T[] {
  * depths rather than one block sliding past. Matching speed and direction
  * would just look like a single wide strip that happened to wrap.
  *
- * `mix-blend-screen` is what makes the portraits sit *in* the page instead of
- * on it: their black ground resolves to exactly the page colour, leaving only
- * the rim light. No alpha channel, no cut-out, and it stays correct if the
- * background colour is ever retuned. The `backdrop` prop is not optional here —
- * see Marquee for why a blended strip needs one. An edge mask fades both strips
- * out at the margins so nothing ever hard-clips at the frame.
+ * The portraits carry a real alpha channel (see scripts/matte-headshots.mjs),
+ * so there is no blend mode and no background to hide — transparent is
+ * transparent, they match the page exactly, and they keep matching it if the
+ * page colour changes. An earlier pass faked this with `mix-blend-screen`,
+ * which worked until the animated strip's own transform created a stacking
+ * context and isolated the blend, leaving a visible box around every portrait.
+ * Real alpha has no such failure mode. An edge mask fades both strips out at
+ * the margins so nothing hard-clips at the frame.
  */
 export function TeamMarquee({
   label,
@@ -42,7 +44,7 @@ export function TeamMarquee({
     "[mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]";
 
   return (
-    <section className="bg-turf overflow-hidden py-10 lg:py-16">
+    <section className="bg-turf overflow-hidden pt-4 pb-10 lg:pt-8 lg:pb-16">
       <div className="mb-6 text-center lg:mb-8">
         <MonoLabel scramble size="lg" className="opacity-40">
           {label}
@@ -50,7 +52,7 @@ export function TeamMarquee({
       </div>
 
       {faces.length > 0 && (
-        <Marquee duration={90} reverse backdrop className={`mb-2 ${edgeFade}`}>
+        <Marquee duration={90} reverse className={`-mb-2 ${edgeFade}`}>
           {faces.map((src, i) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -58,11 +60,11 @@ export function TeamMarquee({
               src={asset(src)}
               alt=""
               aria-hidden="true"
-              width={440}
-              height={440}
+              width={800}
+              height={800}
               loading="lazy"
               decoding="async"
-              className="h-[120px] w-[120px] shrink-0 object-contain mix-blend-screen lg:h-[200px] lg:w-[200px]"
+              className="h-[200px] w-[200px] shrink-0 object-contain lg:h-[380px] lg:w-[380px]"
             />
           ))}
         </Marquee>

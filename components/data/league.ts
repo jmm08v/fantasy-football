@@ -132,21 +132,20 @@ export const TEAMS: {
 ];
 
 /**
- * Rim-lit silhouettes on pure black, which is why they need no cut-out: the
- * marquee screen-blends them, so the black ground resolves to the page colour
- * and only the edge light survives. Same trick as the hero video.
+ * Matted portraits with a real alpha channel — the black ground is gone, not
+ * hidden behind a blend mode, so they sit on the page colour exactly and keep
+ * doing so if that colour is ever retuned.
  *
- * Deliberately not paired 1:1 with names — they're anonymous by design until
- * real portraits exist.
+ * Regenerate from headshots/*.png with `npm run headshots`.
  */
 export const HEADSHOTS = [
-  "/media/headshots/01.webp",
-  "/media/headshots/02.webp",
-  "/media/headshots/03.webp",
-  "/media/headshots/04.webp",
-  "/media/headshots/05.webp",
-  "/media/headshots/06.webp",
-  "/media/headshots/07.webp",
+  "/media/headshots/danny-b.webp",
+  "/media/headshots/vishan-w.webp",
+  "/media/headshots/rob-s.webp",
+  "/media/headshots/john-m.webp",
+  "/media/headshots/allen-h.webp",
+  "/media/headshots/reggi-b.webp",
+  "/media/headshots/danny-t.webp",
 ];
 
 export const RECAPS = [

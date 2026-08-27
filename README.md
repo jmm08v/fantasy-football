@@ -199,26 +199,41 @@ for real photography; when you replace it with `next/image`, keep the
 
 ### The portrait marquee
 
-`public/media/headshots/*.webp` are rim-lit silhouettes on pure black — the same
-treatment as the hero video, so they screen-blend into the page with no cut-out
-and no alpha channel. Source PNGs are gitignored; regenerate with:
+Drop portraits in `headshots/` named after the person (`Danny_B.png`) and run:
 
 ```bash
-cwebp -resize 440 440 -q 82 -m 6 in.png -o public/media/headshots/08.webp
+npm run headshots
 ```
 
-They run opposite the names at more than twice the duration, so the two bands
-read as separate planes rather than one wide strip that happened to wrap.
+`scripts/matte-headshots.mjs` writes matted WebP into
+`public/media/headshots/`, named from the source file. Source PNGs are
+gitignored — only the optimised output ships. Add the new path to `HEADSHOTS`
+in `components/data/league.ts`.
 
-**The gotcha worth knowing.** A blended marquee needs `backdrop` on `<Marquee>`.
-The strip animates with `transform`, a transform creates a stacking context, and
-a stacking context is a blending group — so its children blend against *its*
-backdrop, not the page's. With no background on the strip that backdrop is
-transparent, and a black-on-black portrait screens against nothing, leaving a
-visible rectangle exactly where the blend was meant to erase one. `backdrop`
-paints the page colour on the strip and restores the intended result. The same
-trap applies to any `mix-blend-mode` element inside a transformed, filtered, or
-opacity-below-1 ancestor.
+**How the background comes off.** The portraits are rim-lit on pure black,
+which means luminance already *is* the matte: black ground becomes fully
+transparent, the bright rim fully opaque, and every soft falloff survives as
+partial alpha. That beats threshold-based removal, which would hard-edge
+exactly the glow that makes these read.
+
+Colour is written as flat white rather than un-premultiplied. These portraits
+are neutral — measured chroma spread averages under 1/255 and never exceeds 6 —
+so white is visually identical, whereas dividing by a small alpha amplifies
+noise in near-transparent pixels. That noise is invisible but ruinous for
+compression: un-premultiplying produced 7.3 MB, flat white produces 848 kB.
+
+**Why alpha and not a blend mode.** An earlier pass faked the cut-out with
+`mix-blend-screen`. It worked until it didn't: the marquee strip animates with
+`transform`, a transform creates a stacking context, a stacking context is a
+blending group — so the portraits blended against the *strip's* backdrop
+(transparent) instead of the page's, leaving a visible rectangle around every
+one. Real alpha has no such failure mode and stays correct if the page colour
+is ever retuned. Worth remembering for any `mix-blend-mode` element inside a
+transformed, filtered, or semi-transparent ancestor.
+
+**Size matters here.** Exports are 800px because the portraits display up to
+380 CSS px, and 800 covers that at 2x DPR. An earlier 440px export looked fine
+small and went visibly soft in the hair once the portraits were enlarged.
 
 ### Fonts
 
