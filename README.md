@@ -197,6 +197,29 @@ brighter sources need less. `MediaSlot` is a gradient placeholder standing in
 for real photography; when you replace it with `next/image`, keep the
 `.hairline` overlay.
 
+### The portrait marquee
+
+`public/media/headshots/*.webp` are rim-lit silhouettes on pure black — the same
+treatment as the hero video, so they screen-blend into the page with no cut-out
+and no alpha channel. Source PNGs are gitignored; regenerate with:
+
+```bash
+cwebp -resize 440 440 -q 82 -m 6 in.png -o public/media/headshots/08.webp
+```
+
+They run opposite the names at more than twice the duration, so the two bands
+read as separate planes rather than one wide strip that happened to wrap.
+
+**The gotcha worth knowing.** A blended marquee needs `backdrop` on `<Marquee>`.
+The strip animates with `transform`, a transform creates a stacking context, and
+a stacking context is a blending group — so its children blend against *its*
+backdrop, not the page's. With no background on the strip that backdrop is
+transparent, and a black-on-black portrait screens against nothing, leaving a
+visible rectangle exactly where the blend was meant to erase one. `backdrop`
+paints the page colour on the strip and restores the intended result. The same
+trap applies to any `mix-blend-mode` element inside a transformed, filtered, or
+opacity-below-1 ancestor.
+
 ### Fonts
 
 TWK Everett and RM Mono are commercial. `app/layout.tsx` currently loads Archivo

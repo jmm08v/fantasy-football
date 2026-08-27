@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Source clip — the served copy lives in public/media/
 /video.mp4
+
+# Source portraits — optimised copies live in public/media/headshots/
+/headshots/

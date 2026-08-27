@@ -11,6 +11,7 @@ import { SiteFooter } from "@/components/sections/SiteFooter";
 import {
   FAAB,
   FORMAT,
+  HEADSHOTS,
   KEEPERS,
   LEAGUE,
   PILLARS,
@@ -29,7 +30,11 @@ export default function Home() {
         mediaSrc={asset("/media/hero.mp4")}
         mediaPoster={asset("/media/hero-poster.jpg")}
       />
-      <TeamMarquee label="THE FIELD" items={TEAMS.map((t) => t.name)} />
+      <TeamMarquee
+        label="THE FIELD"
+        items={TEAMS.map((t) => t.name)}
+        headshots={HEADSHOTS}
+      />
       <Manifesto eyebrow="WHY KEEPER" body={KEEPERS.rationale} />
       <LeagueStats stats={STATS} />
       <Pillars items={PILLARS} />

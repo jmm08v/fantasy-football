@@ -131,6 +131,24 @@ export const TEAMS: {
   { name: "TBD", record: "0-0", pf: "0.0", streak: "—" },
 ];
 
+/**
+ * Rim-lit silhouettes on pure black, which is why they need no cut-out: the
+ * marquee screen-blends them, so the black ground resolves to the page colour
+ * and only the edge light survives. Same trick as the hero video.
+ *
+ * Deliberately not paired 1:1 with names — they're anonymous by design until
+ * real portraits exist.
+ */
+export const HEADSHOTS = [
+  "/media/headshots/01.webp",
+  "/media/headshots/02.webp",
+  "/media/headshots/03.webp",
+  "/media/headshots/04.webp",
+  "/media/headshots/05.webp",
+  "/media/headshots/06.webp",
+  "/media/headshots/07.webp",
+];
+
 export const RECAPS = [
   { date: "Nov 24, 2026", title: "Gridiron Heights Clinches A Bye With Four Straight", tag: "WEEK 12 RECAP", href: "#" },
   { date: "Nov 17, 2026", title: "The Week 11 Deadline Deal Nobody Saw Coming", tag: "TRANSACTIONS", href: "#" },
