@@ -108,7 +108,8 @@ export const RULES = [
 ];
 
 /**
- * The field. Preseason, so every record is zeroed.
+ * The field. Eight seats, seven filled — the last is still open, which is why
+ * the roster ends in TBD. Preseason, so every record is zeroed.
  *
  * `manager` is optional — while these entries are people rather than team
  * names, the standings table drops the Manager column entirely rather than
@@ -124,10 +125,11 @@ export const TEAMS: {
 }[] = [
   { name: "Danny B", record: "0-0", pf: "0.0", streak: "—" },
   { name: "Vishan W", record: "0-0", pf: "0.0", streak: "—" },
-  { name: "Robb S", record: "0-0", pf: "0.0", streak: "—" },
+  { name: "Rob S", record: "0-0", pf: "0.0", streak: "—" },
   { name: "John M", record: "0-0", pf: "0.0", streak: "—" },
   { name: "Allen H", record: "0-0", pf: "0.0", streak: "—" },
   { name: "Reggi B", record: "0-0", pf: "0.0", streak: "—" },
+  { name: "Danny T", record: "0-0", pf: "0.0", streak: "—" },
   { name: "TBD", record: "0-0", pf: "0.0", streak: "—" },
 ];
 
