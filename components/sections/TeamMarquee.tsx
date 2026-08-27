@@ -5,20 +5,33 @@ import { asset } from "@/lib/asset";
 /**
  * A marquee only loops seamlessly while one strip is at least as wide as the
  * viewport — below that, the -100% translate exposes a gap before the second
- * copy arrives. A short roster gets repeated until the strip clears the screen.
+ * copy arrives. Repeat the roster until the strip clears the widest screen we
+ * care about.
+ *
+ * Driven by rendered width rather than a fixed count, because the two bands are
+ * wildly different sizes: seven 480px portraits already overflow any viewport,
+ * while seven names do not. A hardcoded minimum would either leave a gap in the
+ * names or duplicate the portraits pointlessly.
  */
-function repeatToFill<T>(items: T[], min: number): T[] {
-  if (items.length >= min) return items;
-  return Array.from({ length: Math.ceil(min / items.length) }, () => items).flat();
+const TARGET_STRIP_PX = 2200;
+
+function repeatToFill<T>(items: T[], approxItemPx: number): T[] {
+  const needed = Math.ceil(TARGET_STRIP_PX / approxItemPx);
+  if (items.length >= needed) return items;
+  return Array.from({ length: Math.ceil(needed / items.length) }, () => items).flat();
 }
 
 /**
  * Two counter-running tickers under one label.
  *
- * The portraits drift the opposite way to the names and take more than twice
- * as long to cross, so the two bands read as separate planes at different
- * depths rather than one block sliding past. Matching speed and direction
- * would just look like a single wide strip that happened to wrap.
+ * The portraits drift the opposite way to the names and take longer to cross,
+ * so the two bands read as separate planes at different depths rather than one
+ * block sliding past. Matching speed and direction would just look like a
+ * single wide strip that happened to wrap.
+ *
+ * Duration is time per full strip, so it sets portraits-per-second independent
+ * of how large they are — 90s to 72s is a clean 25% quicker regardless of the
+ * size change alongside it.
  *
  * The portraits carry a real alpha channel (see scripts/matte-headshots.mjs),
  * so there is no blend mode and no background to hide — transparent is
@@ -38,8 +51,8 @@ export function TeamMarquee({
   items: string[];
   headshots?: string[];
 }) {
-  const names = repeatToFill(items, 10);
-  const faces = repeatToFill(headshots, 12);
+  const names = repeatToFill(items, 200);
+  const faces = repeatToFill(headshots, 492); // 480px portrait + 12px gap
   const edgeFade =
     "[mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]";
 
@@ -52,7 +65,7 @@ export function TeamMarquee({
       </div>
 
       {faces.length > 0 && (
-        <Marquee duration={90} reverse className={`-mb-2 ${edgeFade}`}>
+        <Marquee duration={72} reverse className={`-mb-2 ${edgeFade}`}>
           {faces.map((src, i) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -60,11 +73,13 @@ export function TeamMarquee({
               src={asset(src)}
               alt=""
               aria-hidden="true"
-              width={800}
-              height={800}
+              width={1000}
+              height={1000}
               loading="lazy"
               decoding="async"
-              className="h-[200px] w-[200px] shrink-0 object-contain lg:h-[380px] lg:w-[380px]"
+              // Sized so a single portrait fills the mobile frame — you see one at
+              // a time, with its neighbours dissolving into the edge fade.
+              className="h-[min(92vw,420px)] w-[min(92vw,420px)] shrink-0 object-contain lg:h-[480px] lg:w-[480px]"
             />
           ))}
         </Marquee>

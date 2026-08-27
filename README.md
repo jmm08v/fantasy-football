@@ -231,9 +231,19 @@ one. Real alpha has no such failure mode and stays correct if the page colour
 is ever retuned. Worth remembering for any `mix-blend-mode` element inside a
 transformed, filtered, or semi-transparent ancestor.
 
-**Size matters here.** Exports are 800px because the portraits display up to
-380 CSS px, and 800 covers that at 2x DPR. An earlier 440px export looked fine
-small and went visibly soft in the hair once the portraits were enlarged.
+**Export size tracks display size.** Exports are 1000px because the portraits
+show at up to 480 CSS px on desktop and 420 on mobile — 1000 covers both at 2x
+DPR. An earlier 440px export looked fine small and went visibly soft in the hair
+once the portraits were enlarged, so raise `SIZE` in the script whenever you
+raise the rendered size.
+
+Mobile sizing is `min(92vw, 420px)`, which puts exactly one portrait in the
+frame with its neighbours dissolving into the edge fade.
+
+`repeatToFill` is driven by rendered width, not a fixed count: seven 480px
+portraits already overflow any viewport, while seven names do not, so a
+hardcoded minimum would either leave a gap in the names or duplicate the
+portraits for nothing.
 
 ### Fonts
 

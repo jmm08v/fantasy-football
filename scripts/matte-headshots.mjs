@@ -29,10 +29,11 @@ import sharp from "sharp";
 import path from "node:path";
 import fs from "node:fs";
 
-// 800 covers the largest display size (380 CSS px) at 2x DPR with headroom.
-// 440 was too small once the portraits were enlarged — the hair detail went
-// visibly soft, which reads as "pixelated".
-const SIZE = Number(process.argv[2] || 800);
+// Must cover the largest display size at 2x DPR. Portraits show at up to
+// 480 CSS px on desktop and 420 on mobile, so 1000 clears both. Undershooting
+// this is what made an earlier 440px export look soft in the hair — if you
+// enlarge the portraits again, raise this to match.
+const SIZE = Number(process.argv[2] || 1000);
 const inDir = process.argv[3] || "headshots";
 const outDir = process.argv[4] || "public/media/headshots";
 
