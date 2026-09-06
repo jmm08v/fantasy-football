@@ -45,3 +45,8 @@ next-env.d.ts
 
 # Source portraits — optimised copies live in public/media/headshots/
 /headshots/
+
+# League constitution — contains owners' phone numbers. Stays local; a public
+# repo's history can never be scrubbed of it. Publish a redacted copy if the
+# rules are ever wanted on the site.
+/constitution/
