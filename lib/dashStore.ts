@@ -1,11 +1,16 @@
 /**
  * Where posted 40 times live.
  *
- * V1 keeps them in `localStorage`, which means they are per-device: your times
- * do not reach anyone else, and clearing site data resets your two attempts.
- * That is a placeholder, not the design. Everything the rest of the app needs
- * goes through the four functions at the bottom of this file, so moving to a
- * real shared store is a change to this file and nothing else.
+ * An attempt has two halves: `startAttempt` spends it the instant an official
+ * run begins, and `completeAttempt` fills in the time if the runner finishes.
+ * Splitting it that way is what makes "declare before you run" hold — see the
+ * note on the Attempt type.
+ *
+ * V1 keeps all of it in `localStorage`, which means it is per-device: times do
+ * not reach anyone else, and clearing site data hands back both attempts. That
+ * is a placeholder, not the design. Everything the rest of the app needs goes
+ * through the exported functions here, so moving to a real shared store is a
+ * change to this file and nothing else.
  *
  * When that store lands, two things must move server-side to actually mean
  * anything: the attempt counter (otherwise a private window grants fresh
@@ -23,7 +28,15 @@ export const MAX_ATTEMPTS = 2;
  */
 export const PLAUSIBLE = { min: 3.5, max: 60 } as const;
 
-export type Attempt = { time: number; at: string };
+/**
+ * An attempt is spent when the run *starts*, not when it finishes, so `time`
+ * is null until the runner crosses the line. Abandoning an official run —
+ * quitting a bad start, closing the tab, a browser crash — leaves the attempt
+ * on the board with no time, which is the whole point: if bailing were free,
+ * a player could keep restarting until they liked their start and "declare
+ * before you run" would mean nothing.
+ */
+export type Attempt = { time: number | null; at: string };
 export type Board = Record<string, Attempt[]>;
 
 /** Stable identity, so a board-less render never looks like a changed board. */
@@ -87,39 +100,82 @@ export function attemptsLeft(board: Board, player: string): number {
   return Math.max(0, MAX_ATTEMPTS - attemptsFor(board, player).length);
 }
 
-/** The time that counts: the faster of the posted runs. */
+/**
+ * The time that counts: the faster of the *finished* runs. Attempts still in
+ * flight or abandoned carry no time and must be filtered out — `Math.min`
+ * would quietly coerce a null to zero and hand back a world record.
+ */
 export function bestFor(board: Board, player: string): number | null {
-  const times = attemptsFor(board, player).map((a) => a.time);
+  const times = attemptsFor(board, player)
+    .map((a) => a.time)
+    .filter((t): t is number => t != null);
   return times.length ? Math.min(...times) : null;
 }
 
 /**
- * Commits a run and notifies every subscriber. Refuses a third attempt and an
- * implausible time rather than trusting the caller — this is the one place a
- * result becomes permanent.
+ * Spends an attempt, before a single stride is taken. Returns false when the
+ * player has none left, so the caller can refuse to start the run.
+ *
+ * This is deliberately the irreversible half. Everything after it — the run
+ * itself, whether it is ever completed — only decides what time fills the slot
+ * that has already been claimed.
  */
-export function postTime(player: string, time: number): void {
+export function startAttempt(player: string): boolean {
   const board = getSnapshot();
   const existing = attemptsFor(board, player);
-  if (existing.length >= MAX_ATTEMPTS) return;
-  if (!(time >= PLAUSIBLE.min && time <= PLAUSIBLE.max)) return;
+  if (existing.length >= MAX_ATTEMPTS) return false;
 
   write({
     ...board,
-    [player]: [...existing, { time, at: new Date().toISOString() }],
+    [player]: [...existing, { time: null, at: new Date().toISOString() }],
   });
+  return true;
 }
 
-/** Players sorted by their counting time, unposted players last. */
+/**
+ * Records a finishing time against the attempt already in flight, which is
+ * always the most recently started one. It fills that slot rather than
+ * appending, so a finish can never create an attempt `startAttempt` did not
+ * authorise.
+ *
+ * Only the last attempt is eligible, and only while it is still unfinished.
+ * Searching backwards for any pending slot would let a completed run reach
+ * past itself and fill in an *earlier abandoned* attempt — quietly undoing the
+ * bail that this whole two-phase split exists to make permanent.
+ */
+export function completeAttempt(player: string, time: number): void {
+  if (!(time >= PLAUSIBLE.min && time <= PLAUSIBLE.max)) return;
+
+  const board = getSnapshot();
+  const existing = attemptsFor(board, player);
+  const last = existing.length - 1;
+  if (last < 0 || existing[last].time != null) return;
+
+  const next = existing.slice();
+  next[last] = { ...next[last], time };
+  write({ ...board, [player]: next });
+}
+
+/** Attempts that were started and never finished. */
+export function abandonedBy(board: Board, player: string): number {
+  return attemptsFor(board, player).filter((a) => a.time == null).length;
+}
+
+/**
+ * Players sorted by their counting time, anyone without one last. `used`
+ * counts attempts spent, finished or not, because that is what the player has
+ * left to spend.
+ */
 export function standings(
   board: Board,
   players: string[],
-): { player: string; best: number | null; posted: number }[] {
+): { player: string; best: number | null; used: number; abandoned: number }[] {
   return players
     .map((player) => ({
       player,
       best: bestFor(board, player),
-      posted: attemptsFor(board, player).length,
+      used: attemptsFor(board, player).length,
+      abandoned: abandonedBy(board, player),
     }))
     .sort((a, b) => {
       if (a.best == null && b.best == null) return 0;

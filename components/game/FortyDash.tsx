@@ -10,6 +10,7 @@ import {
 } from "react";
 import { TrackCanvas } from "./TrackCanvas";
 import { TapPads } from "./TapPads";
+import { PinGate } from "./PinGate";
 import { MonoLabel } from "@/components/primitives/MonoLabel";
 import { PillButton } from "@/components/primitives/PillButton";
 import { asset } from "@/lib/asset";
@@ -31,10 +32,12 @@ import {
   getServerSnapshot,
   getSnapshot,
   MAX_ATTEMPTS,
-  postTime,
+  completeAttempt,
+  startAttempt,
   standings,
   subscribe,
 } from "@/lib/dashStore";
+import { hasPin } from "@/lib/dashAuth";
 
 /**
  * The 40-yard dash.
@@ -51,7 +54,7 @@ import {
  * where the nerves come from, which is the point.
  */
 
-type Screen = "lobby" | "run" | "result";
+type Screen = "lobby" | "pin" | "run" | "result";
 type Mode = "practice" | "combine";
 
 export function FortyDash({
@@ -63,7 +66,9 @@ export function FortyDash({
   const [mode, setMode] = useState<Mode>("practice");
   const [player, setPlayer] = useState(players[0]?.name ?? "");
   const board = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const [confirming, setConfirming] = useState(false);
+  // Which face the PIN gate wears — decided when the player asks for an
+  // official run, never during render, because it reads localStorage.
+  const [pinMode, setPinMode] = useState<"set" | "enter">("enter");
   const [result, setResult] = useState<number | null>(null);
   const [flash, setFlash] = useState<Side | null>(null);
   // The simulation's own phase lives in a ref and changes without rendering,
@@ -110,7 +115,9 @@ export function FortyDash({
       // sprinter frozen at the line rather than resetting to a stance.
       setResult(time);
       setScreen("result");
-      if (mode === "combine") postTime(player, time);
+      // The attempt was already spent at the PIN gate; this only fills in the
+      // time it earned.
+      if (mode === "combine") completeAttempt(player, time);
     },
     [mode, player],
   );
@@ -164,8 +171,17 @@ export function FortyDash({
     setResult(null);
     setStarted(false);
     setMode(next);
-    setConfirming(false);
     setScreen("run");
+  }
+
+  /**
+   * An official run has to be claimed by somebody before it starts, so the
+   * PIN gate stands between the button and the blocks. Nothing is spent here:
+   * the attempt is only burned once the run actually begins.
+   */
+  function requestCombine() {
+    setPinMode(hasPin(player) ? "enter" : "set");
+    setScreen("pin");
   }
 
   const onTap = useCallback((side: Side) => {
@@ -228,7 +244,7 @@ export function FortyDash({
         {screen === "run" && !started && (
           <Overlay>
             <MonoLabel className="opacity-60">
-              {mode === "combine" ? "COMBINE RUN — THIS ONE POSTS" : "PRACTICE"}
+              {mode === "combine" ? "OFFICIAL RUN — THIS ONE POSTS" : "PRACTICE"}
             </MonoLabel>
             <p className="type-card max-w-xs pt-3 text-center">
               Tap either pad to start. The clock starts with you.
@@ -256,11 +272,8 @@ export function FortyDash({
             screen={screen}
             mode={mode}
             left={left}
-            confirming={confirming}
             onPractice={() => beginRun("practice")}
-            onCombine={() => setConfirming(true)}
-            onConfirm={() => beginRun("combine")}
-            onCancel={() => setConfirming(false)}
+            onCombine={requestCombine}
             onLobby={() => setScreen("lobby")}
           />
         )}
@@ -275,6 +288,22 @@ export function FortyDash({
             : "ALTERNATE PADS — SAME ONE TWICE IS A STUMBLE"}
         </MonoLabel>
       </div>
+
+      {screen === "pin" && (
+        <PinGate
+          player={player}
+          headshot={players.find((p) => p.name === player)?.headshot ?? ""}
+          mode={pinMode}
+          attemptsLeft={left}
+          onVerified={() => {
+            // Spending the attempt here, not at the finish, is what stops a
+            // player quitting a bad start and trying again for free.
+            if (startAttempt(player)) beginRun("combine");
+            else setScreen("lobby");
+          }}
+          onCancel={() => setScreen("lobby")}
+        />
+      )}
     </div>
   );
 }
@@ -323,7 +352,12 @@ function Lobby({
   players: { name: string; headshot: string }[];
   player: string;
   onPick: (name: string) => void;
-  table: { player: string; best: number | null; posted: number }[];
+  table: {
+    player: string;
+    best: number | null;
+    used: number;
+    abandoned: number;
+  }[];
 }) {
   return (
     <div className="bg-turf/85 absolute inset-0 overflow-y-auto backdrop-blur-[2px]">
@@ -378,7 +412,7 @@ function Lobby({
                 </MonoLabel>
                 <span className="type-body flex-1">{row.player}</span>
                 <MonoLabel className="opacity-40">
-                  {`${row.posted}/${MAX_ATTEMPTS}`}
+                  {`${row.used}/${MAX_ATTEMPTS}`}
                 </MonoLabel>
                 <span
                   className={cn(
@@ -386,7 +420,13 @@ function Lobby({
                     row.best == null && "opacity-25",
                   )}
                 >
-                  {row.best == null ? "--.--" : formatTime(row.best)}
+                  {/* An attempt spent without a finish reads DNF rather than
+                      as an empty slot — it is gone either way. */}
+                  {row.best != null
+                    ? formatTime(row.best)
+                    : row.abandoned > 0
+                      ? "DNF"
+                      : "--.--"}
                 </span>
               </div>
             ))}
@@ -441,51 +481,28 @@ function Controls({
   screen,
   mode,
   left,
-  confirming,
   onPractice,
   onCombine,
-  onConfirm,
-  onCancel,
   onLobby,
 }: {
   screen: Screen;
   mode: Mode;
   left: number;
-  confirming: boolean;
   onPractice: () => void;
   onCombine: () => void;
-  onConfirm: () => void;
-  onCancel: () => void;
   onLobby: () => void;
 }) {
-  if (confirming) {
-    return (
-      <div className="flex flex-col items-center gap-y-3">
-        <p className="type-body max-w-sm text-center opacity-70">
-          This burns one of your two attempts. Whatever the clock says is what
-          posts — there is no discarding it afterwards.
-        </p>
-        <div className="flex gap-x-2">
-          <PillButton onClick={onConfirm}>Run it</PillButton>
-          <PillButton variant="outline" onClick={onCancel}>
-            Back
-          </PillButton>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-wrap items-center justify-center gap-2">
       <PillButton variant="outline" onClick={onPractice}>
         {screen === "result" && mode === "practice" ? "Practice again" : "Practice"}
       </PillButton>
       {left > 0 ? (
-        <PillButton onClick={onCombine}>
-          {`Combine run — ${left} left`}
-        </PillButton>
+        // The commitment warning lives on the PIN gate, which is the screen
+        // that actually stands between this button and the blocks.
+        <PillButton onClick={onCombine}>{`Official run — ${left} left`}</PillButton>
       ) : (
-        <span className="type-hud rounded-full border border-chalk/25 px-5 py-[14px] opacity-40">
+        <span className="type-hud border-chalk/25 rounded-full border px-5 py-[14px] opacity-40">
           BOTH ATTEMPTS USED
         </span>
       )}
