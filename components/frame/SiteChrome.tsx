@@ -1,13 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { ViewportFrame, FrameMark } from "./ViewportFrame";
 import { HudBar, type Readout } from "./HudBar";
 import { MonoLabel } from "@/components/primitives/MonoLabel";
 import { LEAGUE } from "@/components/data/league";
 
-const NAV = ["Rulebook", "Standings", "Recaps", "Keepers", "Draft Board"];
+/**
+ * `href` is "#" for the sections that are still placeholders. Real routes go
+ * through next/link so `basePath` is applied — a literal "/dash" would 404 on
+ * GitHub Pages, which serves the site from a subdirectory.
+ */
+const NAV = [
+  { label: "Rulebook", href: "#" },
+  { label: "Standings", href: "#" },
+  { label: "40-Yard Dash", href: "/dash" },
+  { label: "Recaps", href: "#" },
+  { label: "Keepers", href: "#" },
+  { label: "Draft Board", href: "#" },
+];
 
 /**
  * Persistent chrome: the frame, the wordmark on its top edge, the telemetry
@@ -34,10 +47,8 @@ export function SiteChrome({ left, right }: { left: Readout[]; right: Readout[] 
           >
             <nav className="flex h-full flex-col items-center justify-center gap-y-2">
               {NAV.map((item, i) => (
-                <motion.a
-                  key={item}
-                  href="#"
-                  className="type-display-lg hover:text-volt transition-colors duration-300"
+                <motion.div
+                  key={item.label}
                   initial={{ opacity: 0, y: -40 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
@@ -46,10 +57,15 @@ export function SiteChrome({ left, right }: { left: Readout[]; right: Readout[] 
                     delay: i * 0.06,
                     ease: [0.16, 1, 0.3, 1],
                   }}
-                  onClick={() => setMenuOpen(false)}
                 >
-                  {item}
-                </motion.a>
+                  <Link
+                    href={item.href}
+                    className="type-display-lg hover:text-volt transition-colors duration-300"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                </motion.div>
               ))}
               <div className="mt-12">
                 <MonoLabel className="opacity-40">PRESS MENU TO CLOSE</MonoLabel>
