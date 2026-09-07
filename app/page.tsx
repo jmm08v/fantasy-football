@@ -29,6 +29,7 @@ export default function Home() {
         tagline={LEAGUE.tagline}
         inviteUrl={LEAGUE.inviteUrl}
         duesUrl={LEAGUE.duesUrl}
+        duesAmount={LEAGUE.duesAmount}
         mediaSrc={asset("/media/hero.mp4")}
         mediaPoster={asset("/media/hero-poster.jpg")}
       />

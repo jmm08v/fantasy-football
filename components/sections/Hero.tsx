@@ -34,6 +34,7 @@ export function Hero({
   tagline,
   inviteUrl,
   duesUrl,
+  duesAmount,
   mediaSrc,
   mediaPoster,
 }: {
@@ -43,6 +44,8 @@ export function Hero({
   inviteUrl?: string;
   /** Venmo link for league dues. */
   duesUrl?: string;
+  /** Shown on the dues button so the price is known before the tap. */
+  duesAmount?: string;
   mediaSrc?: string;
   mediaPoster?: string;
 }) {
@@ -126,8 +129,13 @@ export function Hero({
               Draft Order Qualifier
             </PillButton>
             {duesUrl && (
-              <PillButton variant="venmo" href={duesUrl} icon={<VenmoMark />}>
-                Pay Dues
+              <PillButton
+                variant="venmo"
+                href={duesUrl}
+                icon={<VenmoMark />}
+                iconPosition="leading"
+              >
+                {duesAmount ? `Pay Dues — ${duesAmount}` : "Pay Dues"}
               </PillButton>
             )}
           </div>

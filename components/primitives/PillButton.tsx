@@ -25,6 +25,7 @@ export function PillButton({
   variant = "solid",
   className,
   icon,
+  iconPosition = "trailing",
   shineDelay,
 }: {
   children: React.ReactNode;
@@ -33,6 +34,12 @@ export function PillButton({
   variant?: "solid" | "outline" | "invite" | "venmo";
   className?: string;
   icon?: React.ReactNode;
+  /**
+   * Trailing suits an arrow, which points onward from the label. A brand mark
+   * leads instead: it identifies where the button goes, so it should be read
+   * before the words rather than after them.
+   */
+  iconPosition?: "leading" | "trailing";
   /**
    * Offsets the sweep on an `invite` button. Two of them side by side glinting
    * in unison reads as a blinking pair; staggered, it reads as light moving
@@ -69,8 +76,9 @@ export function PillButton({
       )}
       {/* Lifted above the sweep so the label never dims as it passes. */}
       <span className="relative inline-flex items-center gap-x-2">
+        {iconPosition === "leading" && icon}
         {children}
-        {icon}
+        {iconPosition === "trailing" && icon}
       </span>
     </>
   );
