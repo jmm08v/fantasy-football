@@ -24,6 +24,7 @@ export function SiteFooter({
         <div className="col-span-6 flex flex-wrap items-end gap-2 lg:col-span-4 lg:justify-end">
           {inviteUrl && (
             <PillButton
+              variant="invite"
               href={inviteUrl}
               icon={
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">

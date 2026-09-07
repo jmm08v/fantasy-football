@@ -33,6 +33,16 @@
   --frame-radius: 40px;
 
   --animate-marquee: marquee 30s linear infinite;
+  /* Specular sweep for the invite button. The long tail is the point: the
+     glint crosses in about a second and a half, then the button sits still
+     for another second and a bit. A shine with no rest reads as a loading
+     bar rather than as light catching an edge. */
+  /* Deliberately not one of the three house curves. Those are decelerations,
+     for UI arriving somewhere and settling; this is simulated light crossing a
+     surface, and an ease-out makes the glint visibly slow down as it leaves,
+     which reads as a sliding object rather than a reflection. Symmetric
+     in-out keeps the crossing evenly paced. */
+  --animate-shine: shine 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
 /* @theme takes only custom properties, so the responsive frame sizes live here. */
@@ -46,6 +56,14 @@
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-100%); }
+}
+
+/* Skewed so the highlight reads as a reflection raking across the pill rather
+   than a bar sliding under it. Transform-only, so it composites on the GPU and
+   needs no will-change of its own. */
+@keyframes shine {
+  0%, 12%   { transform: translateX(-260%) skewX(-18deg); }
+  58%, 100% { transform: translateX(460%) skewX(-18deg); }
 }
 
 /* ============================================================

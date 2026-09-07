@@ -108,6 +108,7 @@ export function Hero({
           {inviteUrl && (
             <div className="pointer-events-auto">
               <PillButton
+                variant="invite"
                 href={inviteUrl}
                 icon={
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
