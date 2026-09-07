@@ -66,7 +66,11 @@ export function FortyDash({
   const [screen, setScreen] = useState<Screen>("lobby");
   const [mode, setMode] = useState<Mode>("practice");
   const [player, setPlayer] = useState(players[0]?.name ?? "");
-  const board = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const { board, loaded, error } = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
   // Which face the PIN gate wears — decided when the player asks for an
   // official run, never during render, because it reads localStorage.
   const [pinMode, setPinMode] = useState<"set" | "enter">("enter");
@@ -118,7 +122,7 @@ export function FortyDash({
       setScreen("result");
       // The attempt was already spent at the PIN gate; this only fills in the
       // time it earned.
-      if (mode === "combine") completeAttempt(player, time);
+      if (mode === "combine") void completeAttempt(player, time);
     },
     [mode, player],
   );
@@ -264,6 +268,8 @@ export function FortyDash({
             player={player}
             onPick={setPlayer}
             table={table}
+            loaded={loaded}
+            error={error}
           />
         )}
 
@@ -321,10 +327,11 @@ export function FortyDash({
           headshot={players.find((p) => p.name === player)?.headshot ?? ""}
           mode={pinMode}
           attemptsLeft={left}
-          onVerified={() => {
+          onVerified={async () => {
             // Spending the attempt here, not at the finish, is what stops a
-            // player quitting a bad start and trying again for free.
-            if (startAttempt(player)) beginRun("combine");
+            // player quitting a bad start and trying again for free. The
+            // server is what refuses a third, so this waits on its answer.
+            if (await startAttempt(player)) beginRun("combine");
             else setScreen("lobby");
           }}
           onCancel={() => setScreen("lobby")}
@@ -374,10 +381,14 @@ function Lobby({
   player,
   onPick,
   table,
+  loaded,
+  error,
 }: {
   players: { name: string; headshot: string }[];
   player: string;
   onPick: (name: string) => void;
+  loaded: boolean;
+  error: string | null;
   table: {
     player: string;
     best: number | null;
@@ -423,7 +434,13 @@ function Lobby({
         </div>
 
         <div>
-          <MonoLabel className="opacity-40">POSTED TIMES</MonoLabel>
+          <div className="flex items-baseline gap-x-3">
+            <MonoLabel className="opacity-40">POSTED TIMES</MonoLabel>
+            {/* An empty board mid-request would otherwise read as "nobody has
+                run", which is a different and much worse claim. */}
+            {!loaded && <MonoLabel className="opacity-40">LOADING…</MonoLabel>}
+            {error && <MonoLabel className="text-flag">{error.toUpperCase()}</MonoLabel>}
+          </div>
           <div className="flex flex-col gap-y-1 pt-3">
             {table.map((row, i) => (
               <div
