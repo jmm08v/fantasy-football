@@ -2,6 +2,7 @@
 
 import { SplitChars } from "@/components/primitives/SplitChars";
 import { MonoLabel } from "@/components/primitives/MonoLabel";
+import { PillButton } from "@/components/primitives/PillButton";
 import { MagneticMedia } from "@/components/primitives/MagneticMedia";
 import { STAGGER } from "@/lib/motion";
 
@@ -30,11 +31,14 @@ const PLACEMENT = [
 export function Hero({
   words,
   tagline,
+  inviteUrl,
   mediaSrc,
   mediaPoster,
 }: {
   words: string[];
   tagline: string;
+  /** Sleeper invite. Omitted, the call to action simply is not rendered. */
+  inviteUrl?: string;
   mediaSrc?: string;
   mediaPoster?: string;
 }) {
@@ -91,11 +95,31 @@ export function Hero({
           </SplitChars>
         ))}
 
-        <p className="col-span-6 mt-10 lg:col-start-8 lg:col-end-12 lg:row-start-3 lg:mt-0 lg:self-end">
-          <MonoLabel scramble size="lg" delay={900} className="opacity-70">
-            {tagline}
-          </MonoLabel>
-        </p>
+        <div className="col-span-6 mt-10 flex flex-col items-start gap-y-6 lg:col-start-8 lg:col-end-12 lg:row-start-3 lg:mt-0 lg:self-end">
+          <p>
+            <MonoLabel scramble size="lg" delay={900} className="opacity-70">
+              {tagline}
+            </MonoLabel>
+          </p>
+
+          {/* The headline is deliberately unclickable — `pointer-events-none`
+              on the words — so this is the only thing in the hero to act on,
+              and it needs to opt back in. */}
+          {inviteUrl && (
+            <div className="pointer-events-auto">
+              <PillButton
+                href={inviteUrl}
+                icon={
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M1 6h10M6.5 1.5L11 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" />
+                  </svg>
+                }
+              >
+                Join League
+              </PillButton>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

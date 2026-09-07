@@ -9,6 +9,8 @@ export const LEAGUE = {
   headline: ["EIGHT", "TEAMS", "ONE", "TROPHY"],
   tagline:
     "An 8-team half-PPR keeper league. Three keepers a year, superflex under center, and a championship that ends in Week 17.",
+  /** Sleeper invite. Anyone with this link can join, so it is public by design. */
+  inviteUrl: "https://sleeper.com/i/QBMZZ22DLwx66",
 };
 
 export const HUD_LEFT = [

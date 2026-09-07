@@ -27,6 +27,7 @@ export default function Home() {
       <Hero
         words={LEAGUE.headline}
         tagline={LEAGUE.tagline}
+        inviteUrl={LEAGUE.inviteUrl}
         mediaSrc={asset("/media/hero.mp4")}
         mediaPoster={asset("/media/hero-poster.jpg")}
       />
@@ -43,7 +44,11 @@ export default function Home() {
       <Standings title="Standings" teams={TEAMS} />
       {/* Hidden until there are real recaps to publish.
           <Recaps title="Latest" items={RECAPS} /> */}
-      <SiteFooter name={LEAGUE.name} season={LEAGUE.season} />
+      <SiteFooter
+        name={LEAGUE.name}
+        season={LEAGUE.season}
+        inviteUrl={LEAGUE.inviteUrl}
+      />
     </main>
   );
 }

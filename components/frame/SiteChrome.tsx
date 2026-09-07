@@ -9,6 +9,7 @@ import { HudBar, type Readout } from "./HudBar";
 import { MonoLabel } from "@/components/primitives/MonoLabel";
 import { LEAGUE } from "@/components/data/league";
 import { DASH_RESET } from "@/lib/dashEvents";
+import { asset } from "@/lib/asset";
 
 /**
  * Only what actually goes somewhere. Every other entry used to be `href="#"`,
@@ -18,9 +19,11 @@ import { DASH_RESET } from "@/lib/dashEvents";
  * An item with no `href` renders as plainly unavailable rather than as a link
  * that silently does nothing. A dead link is worse than an honest one.
  */
-const NAV: { label: string; href?: string; external?: boolean }[] = [
+const NAV: { label: string; href?: string; file?: boolean }[] = [
   { label: "40-Yard Dash", href: "/dash" },
-  { label: "Constitution" },
+  // A file in public/, not a route: next/link would try to client-navigate to
+  // it and 404. Plain anchor, base path applied by hand.
+  { label: "Constitution", href: "/constitution.pdf", file: true },
   { label: "Draft Board" },
 ];
 
@@ -82,7 +85,17 @@ export function SiteChrome({ left, right }: { left: Readout[]; right: Readout[] 
                   }}
                   className="flex items-baseline gap-x-3"
                 >
-                  {item.href ? (
+                  {item.href && item.file ? (
+                    <a
+                      href={asset(item.href)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="type-display-lg hover:text-volt transition-colors duration-300"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {item.label}
+                    </a>
+                  ) : item.href ? (
                     <Link
                       href={item.href}
                       className="type-display-lg hover:text-volt transition-colors duration-300"

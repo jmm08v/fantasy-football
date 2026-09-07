@@ -3,7 +3,15 @@ import { SplitChars } from "@/components/primitives/SplitChars";
 import { MonoLabel } from "@/components/primitives/MonoLabel";
 import { PillButton } from "@/components/primitives/PillButton";
 
-export function SiteFooter({ name, season }: { name: string; season: string }) {
+export function SiteFooter({
+  name,
+  season,
+  inviteUrl,
+}: {
+  name: string;
+  season: string;
+  inviteUrl?: string;
+}) {
   return (
     <footer className="bg-turf pb-32">
       <Container className="gap-y-12 pt-20 lg:pt-32">
@@ -11,8 +19,23 @@ export function SiteFooter({ name, season }: { name: string; season: string }) {
           {"HERE IS YOUR INVITE"}
         </SplitChars>
 
-        <div className="col-span-6 flex items-end lg:col-span-4 lg:justify-end">
+        {/* "HERE IS YOUR INVITE" sat above a button that only fetched the app.
+            The invite itself leads; installing Sleeper is the fallback. */}
+        <div className="col-span-6 flex flex-wrap items-end gap-2 lg:col-span-4 lg:justify-end">
+          {inviteUrl && (
+            <PillButton
+              href={inviteUrl}
+              icon={
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path d="M1 6h10M6.5 1.5L11 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+              }
+            >
+              Join League
+            </PillButton>
+          )}
           <PillButton
+            variant="outline"
             href="https://sleeper.com/download"
             icon={
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
