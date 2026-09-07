@@ -518,28 +518,55 @@ function Controls({
   onCombine: () => void;
   onLobby: () => void;
 }) {
+  /*
+   * Two tall actions side by side, everything else full width beneath them.
+   * Giving Exit its own row is what buys the pair their width — sharing one
+   * row with it left three targets competing for a phone's screen, and the two
+   * that matter were the ones getting squeezed.
+   *
+   * `h-16` against the 42px these used to stand is the requested half again.
+   * It also leaves room for two lines, which the attempts label needs once the
+   * button is only half the screen wide.
+   */
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2">
-      <PillButton variant="outline" onClick={onPractice}>
-        {screen === "result" && mode === "practice" ? "Practice again" : "Practice"}
-      </PillButton>
-      {left > 0 ? (
-        // The commitment warning lives on the PIN gate, which is the screen
-        // that actually stands between this button and the blocks.
-        <PillButton onClick={onCombine}>{`Official run — ${left} left`}</PillButton>
-      ) : (
-        <span className="type-hud border-chalk/25 rounded-full border px-5 py-[14px] opacity-40">
-          BOTH ATTEMPTS USED
-        </span>
-      )}
+    <div className="flex flex-col gap-y-2">
+      <div className="grid grid-cols-2 gap-2">
+        <PillButton
+          variant="solid"
+          onClick={onPractice}
+          className="h-16 w-full justify-center px-3 text-center"
+        >
+          {screen === "result" && mode === "practice" ? "Practice again" : "Practice"}
+        </PillButton>
+
+        {left > 0 ? (
+          <PillButton
+            variant="accent"
+            onClick={onCombine}
+            className="h-16 w-full justify-center px-3 text-center"
+          >
+            {`Official run — ${left} left`}
+          </PillButton>
+        ) : (
+          <span className="type-hud border-chalk/25 flex h-16 items-center justify-center rounded-full border px-3 text-center opacity-40">
+            BOTH ATTEMPTS USED
+          </span>
+        )}
+      </div>
+
       {screen === "result" && (
-        <PillButton variant="outline" onClick={onLobby}>
+        <PillButton
+          variant="outline"
+          onClick={onLobby}
+          className="w-full justify-center"
+        >
           Board
         </PillButton>
       )}
+
       {/* The logo in the frame already goes home, but nobody should have to
           discover that to leave a full-screen game. */}
-      <PillButton variant="outline" href="/">
+      <PillButton variant="outline" href="/" className="w-full justify-center">
         Exit
       </PillButton>
     </div>

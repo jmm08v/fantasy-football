@@ -31,7 +31,7 @@ export function PillButton({
   children: React.ReactNode;
   href?: string;
   onClick?: () => void;
-  variant?: "solid" | "outline" | "invite" | "venmo";
+  variant?: "solid" | "outline" | "invite" | "accent" | "venmo";
   className?: string;
   icon?: React.ReactNode;
   /**
@@ -51,6 +51,10 @@ export function PillButton({
     "type-hud relative inline-flex items-center gap-x-2 rounded-full px-5 py-[14px] will-change-transform",
     "transition-transform duration-700 hover:scale-[1.10]",
     variant === "solid" && "bg-chalk text-turf",
+    // A filled accent, as opposed to `invite`, which is volt *type* on a
+    // near-transparent ground. Beside a solid white button that one would read
+    // as an outline; this one carries the same weight.
+    variant === "accent" && "bg-volt text-turf",
     variant === "outline" && "border-chalk/40 text-chalk hover:border-chalk border",
     // `overflow-hidden` is what clips the sweep to the pill's radius.
     variant === "invite" &&
