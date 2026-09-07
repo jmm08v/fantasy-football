@@ -28,6 +28,7 @@ export default function Home() {
         words={LEAGUE.headline}
         tagline={LEAGUE.tagline}
         inviteUrl={LEAGUE.inviteUrl}
+        duesUrl={LEAGUE.duesUrl}
         mediaSrc={asset("/media/hero.mp4")}
         mediaPoster={asset("/media/hero-poster.jpg")}
       />
@@ -44,6 +45,8 @@ export default function Home() {
       <Standings title="Standings" teams={TEAMS} />
       {/* Hidden until there are real recaps to publish.
           <Recaps title="Latest" items={RECAPS} /> */}
+      {/* The new calls to action live in the hero, where they were asked for.
+          The footer keeps the join/download pair it already had. */}
       <SiteFooter
         name={LEAGUE.name}
         season={LEAGUE.season}

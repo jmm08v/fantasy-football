@@ -3,6 +3,7 @@
 import { SplitChars } from "@/components/primitives/SplitChars";
 import { MonoLabel } from "@/components/primitives/MonoLabel";
 import { PillButton } from "@/components/primitives/PillButton";
+import { VenmoMark } from "@/components/primitives/VenmoMark";
 import { MagneticMedia } from "@/components/primitives/MagneticMedia";
 import { STAGGER } from "@/lib/motion";
 
@@ -32,6 +33,7 @@ export function Hero({
   words,
   tagline,
   inviteUrl,
+  duesUrl,
   mediaSrc,
   mediaPoster,
 }: {
@@ -39,6 +41,8 @@ export function Hero({
   tagline: string;
   /** Sleeper invite. Omitted, the call to action simply is not rendered. */
   inviteUrl?: string;
+  /** Venmo link for league dues. */
+  duesUrl?: string;
   mediaSrc?: string;
   mediaPoster?: string;
 }) {
@@ -103,25 +107,40 @@ export function Hero({
           </p>
 
           {/* The headline is deliberately unclickable — `pointer-events-none`
-              on the words — so this is the only thing in the hero to act on,
-              and it needs to opt back in. */}
-          {inviteUrl && (
-            <div className="pointer-events-auto">
-              <PillButton
-                variant="invite"
-                href={inviteUrl}
-                icon={
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                    <path d="M1 6h10M6.5 1.5L11 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" />
-                  </svg>
-                }
-              >
+              on the words — so these are the only things in the hero to act
+              on, and they need to opt back in. */}
+          <div className="pointer-events-auto flex flex-col items-start gap-y-3">
+            {inviteUrl && (
+              <PillButton variant="invite" href={inviteUrl} icon={<Arrow />}>
                 Join League
               </PillButton>
-            </div>
-          )}
+            )}
+            {/* Offset so the two sweeps cross at different moments. In unison
+                they read as a pair of blinking lights rather than as light. */}
+            <PillButton
+              variant="invite"
+              shineDelay="1.6s"
+              href="/dash"
+              icon={<Arrow />}
+            >
+              Draft Order Qualifier
+            </PillButton>
+            {duesUrl && (
+              <PillButton variant="venmo" href={duesUrl} icon={<VenmoMark />}>
+                Pay Dues
+              </PillButton>
+            )}
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+      <path d="M1 6h10M6.5 1.5L11 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
   );
 }

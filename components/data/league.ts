@@ -11,6 +11,11 @@ export const LEAGUE = {
     "An 8-team half-PPR keeper league. Three keepers a year, superflex under center, and a championship that ends in Week 17.",
   /** Sleeper invite. Anyone with this link can join, so it is public by design. */
   inviteUrl: "https://sleeper.com/i/QBMZZ22DLwx66",
+  /**
+   * Placeholder: Venmo's front door, not a payment request. Swap this for the
+   * real link and the button needs no other change.
+   */
+  duesUrl: "https://venmo.com",
 };
 
 export const HUD_LEFT = [

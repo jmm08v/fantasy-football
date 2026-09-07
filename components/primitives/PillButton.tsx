@@ -25,13 +25,20 @@ export function PillButton({
   variant = "solid",
   className,
   icon,
+  shineDelay,
 }: {
   children: React.ReactNode;
   href?: string;
   onClick?: () => void;
-  variant?: "solid" | "outline" | "invite";
+  variant?: "solid" | "outline" | "invite" | "venmo";
   className?: string;
   icon?: React.ReactNode;
+  /**
+   * Offsets the sweep on an `invite` button. Two of them side by side glinting
+   * in unison reads as a blinking pair; staggered, it reads as light moving
+   * across a surface.
+   */
+  shineDelay?: string;
 }) {
   const classes = cn(
     "type-hud relative inline-flex items-center gap-x-2 rounded-full px-5 py-[14px] will-change-transform",
@@ -41,6 +48,12 @@ export function PillButton({
     // `overflow-hidden` is what clips the sweep to the pill's radius.
     variant === "invite" &&
       "border-volt/50 text-volt bg-volt/5 hover:border-volt hover:bg-volt/10 overflow-hidden border transition-colors",
+    // Venmo's brand blue, hard-coded rather than tokenised: it belongs to
+    // someone else's identity, not to this design system, and putting it in
+    // @theme would invite reuse as if it were one of our own colours.
+    // The border is the same colour as the fill purely so this sits at the
+    // same height as the bordered variants when they are stacked together.
+    variant === "venmo" && "border border-[#008CFF] bg-[#008CFF] text-white",
     className,
   );
   const style = { transitionTimingFunction: CSS_EASE.quart };
@@ -50,6 +63,7 @@ export function PillButton({
       {variant === "invite" && (
         <span
           aria-hidden="true"
+          style={shineDelay ? { animationDelay: shineDelay } : undefined}
           className="animate-shine via-volt/35 pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent to-transparent"
         />
       )}
