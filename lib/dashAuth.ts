@@ -22,7 +22,14 @@
  * determined.
  */
 
-const KEY = "hutt-hutt-dash-pins-v1";
+/**
+ * Reset alongside the board, and deliberately so. A PIN enrolled during
+ * testing would otherwise survive the wipe, and since nobody can look a hash
+ * up and the UI exposes no way to clear one, whoever held it would be locked
+ * out of their own attempts with no recovery. Everyone re-enrols on their
+ * first official run, which is a prompt rather than a problem.
+ */
+const KEY = "hutt-hutt-dash-pins-v2";
 
 export const PIN_LENGTH = 4;
 

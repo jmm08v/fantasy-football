@@ -17,7 +17,15 @@
  * attempts) and a sanity bound on submitted times.
  */
 
-const KEY = "hutt-hutt-dash-v1";
+/**
+ * Bumping the suffix is how a league-wide reset is performed while the board
+ * still lives on each player's own device: there is no server to clear, so
+ * every browser is instead pointed at a key it has never written. The old key
+ * is orphaned rather than deleted — a couple of kilobytes nothing reads again.
+ *
+ * v2: cleared before the league's first real use, wiping test runs.
+ */
+const KEY = "hutt-hutt-dash-v2";
 
 /** Two posted runs each, best one counts — the Combine rule. */
 export const MAX_ATTEMPTS = 2;
