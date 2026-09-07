@@ -1,30 +1,34 @@
+import Image from "next/image";
+import { asset } from "@/lib/asset";
+import { cn } from "@/lib/cn";
+
 /**
- * PLACEHOLDER — not Venmo's official mark.
+ * Venmo's app icon, supplied by the league and resized for the web — never
+ * recoloured, cropped or redrawn, which is the part their brand rules care
+ * about. The source lives at the repo root; public/media/venmo.png is a
+ * straight 128px resample of it, large enough for a 3x screen at this size.
  *
- * This is a hand-drawn approximation of the wedge in their app icon, here so
- * the dues button reads as a payment link rather than shipping with a generic
- * arrow. Replace it with the real asset from Venmo's brand resources, which
- * also carry usage rules worth reading before this goes in front of anyone:
- * payment brands are particular about their marks, and a link that says "pay"
- * next to a wrong-looking logo is the kind of thing people are right to
- * hesitate over.
- *
- * Swapping it is a change to this file alone.
+ * Its container is the same #008CFF as the button it sits on, and its corners
+ * are transparent, so on the dues button the rounded square merges into the
+ * pill and what reads is the white V. That is the intended look, but it does
+ * mean the mark's container is invisible there — on any other background the
+ * full icon shows, unaltered.
  */
 export function VenmoMark({ className }: { className?: string }) {
   return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 16 16"
-      fill="none"
-      aria-hidden="true"
-      className={className}
-    >
-      <path
-        d="M12.4 1.9c.53.87.77 1.77.77 2.9 0 3.63-3.1 8.34-5.61 11.2H2.9L1 2.6l4.14-.39.98 7.9c.92-1.5 2.06-3.85 2.06-5.45 0-.88-.15-1.48-.39-1.97L12.4 1.9Z"
-        fill="currentColor"
-      />
-    </svg>
+    <Image
+      src={asset("/media/venmo.png")}
+      alt=""
+      width={128}
+      height={128}
+      // Eager, not next/image's lazy default: four kilobytes inside a call to
+      // action is not worth deferring, and deferring it means the logo pops in
+      // after the button has already drawn.
+      loading="eager"
+      // 12px matches the arrow icons on the buttons stacked above, which is
+      // what keeps all three pills the same height — the icon is the tallest
+      // thing in the row, so it sets the height.
+      className={cn("h-3 w-3", className)}
+    />
   );
 }
