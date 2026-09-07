@@ -14,6 +14,14 @@ export const LEAGUE = {
   /** Dues go to the Co-Commissioner, who handles league funds. */
   duesUrl: "https://venmo.com/u/DannyBernabe",
   duesAmount: "$100",
+  draftUrl: "https://sleeper.com/draft/nfl/1234567890",
+  /**
+   * The offset is -04:00, not -05:00. September is Eastern *Daylight* time;
+   * writing the standard-time offset would run the countdown an hour late for
+   * everyone. Carrying the offset in the string also means a manager outside
+   * Eastern sees the correct remaining time rather than their own 5pm.
+   */
+  draftAt: "2026-09-07T17:00:00-04:00",
 };
 
 export const HUD_LEFT = [

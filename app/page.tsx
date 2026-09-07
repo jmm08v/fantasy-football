@@ -52,6 +52,8 @@ export default function Home() {
         name={LEAGUE.name}
         season={LEAGUE.season}
         inviteUrl={LEAGUE.inviteUrl}
+        draftUrl={LEAGUE.draftUrl}
+        draftAt={LEAGUE.draftAt}
       />
     </main>
   );

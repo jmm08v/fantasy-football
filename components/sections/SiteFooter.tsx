@@ -2,15 +2,21 @@ import { Container } from "@/components/primitives/Container";
 import { SplitChars } from "@/components/primitives/SplitChars";
 import { MonoLabel } from "@/components/primitives/MonoLabel";
 import { PillButton } from "@/components/primitives/PillButton";
+import { Countdown } from "@/components/primitives/Countdown";
 
 export function SiteFooter({
   name,
   season,
   inviteUrl,
+  draftUrl,
+  draftAt,
 }: {
   name: string;
   season: string;
   inviteUrl?: string;
+  draftUrl?: string;
+  /** ISO 8601 with an offset — see the Countdown component. */
+  draftAt?: string;
 }) {
   return (
     <footer className="bg-turf pb-32">
@@ -47,6 +53,35 @@ export function SiteFooter({
             Download Sleeper
           </PillButton>
         </div>
+
+        {/* Last button on the page, and on draft day the only one that
+            matters. The clock sits beside it rather than inside it: a label
+            that rewrites itself every second would make the button itself
+            look unstable. */}
+        {draftUrl && (
+          <div className="col-span-6 flex flex-wrap items-center gap-x-4 gap-y-3 lg:col-span-12">
+            <PillButton
+              variant="invite"
+              shineDelay="0.8s"
+              href={draftUrl}
+              icon={
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path d="M1 6h10M6.5 1.5L11 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+              }
+            >
+              Draft Board
+            </PillButton>
+            {draftAt && (
+              <Countdown
+                target={draftAt}
+                prefix="DRAFT STARTS IN"
+                passed="DRAFT UNDERWAY"
+                className="text-volt"
+              />
+            )}
+          </div>
+        )}
 
         <div className="border-chalk/20 col-span-6 flex flex-col gap-y-4 border-t pt-8 lg:col-span-12 lg:flex-row lg:justify-between">
           <MonoLabel className="opacity-40">{`${name} — EST. ${season}`}</MonoLabel>

@@ -10,6 +10,7 @@ import { MonoLabel } from "@/components/primitives/MonoLabel";
 import { LEAGUE } from "@/components/data/league";
 import { DASH_RESET } from "@/lib/dashEvents";
 import { asset } from "@/lib/asset";
+import { LEAGUE as L } from "@/components/data/league";
 
 /**
  * Only what actually goes somewhere. Every other entry used to be `href="#"`,
@@ -24,8 +25,13 @@ const NAV: { label: string; href?: string; file?: boolean }[] = [
   // A file in public/, not a route: next/link would try to client-navigate to
   // it and 404. Plain anchor, base path applied by hand.
   { label: "Constitution", href: "/constitution.pdf", file: true },
-  { label: "Draft Board" },
+  { label: "Draft Board", href: L.draftUrl },
 ];
+
+/** Off-site links leave the app; in-app routes go through the router. */
+function isOutbound(href: string): boolean {
+  return /^https?:\/\//.test(href);
+}
 
 /** `trailingSlash: true` means the live path is "/dash/" but hrefs are "/dash". */
 function samePath(pathname: string, href: string): boolean {
@@ -85,9 +91,11 @@ export function SiteChrome({ left, right }: { left: Readout[]; right: Readout[] 
                   }}
                   className="flex items-baseline gap-x-3"
                 >
-                  {item.href && item.file ? (
+                  {item.href && (item.file || isOutbound(item.href)) ? (
+                    // A file in public/ needs the base path applied by hand; an
+                    // off-site URL must be left exactly as given.
                     <a
-                      href={asset(item.href)}
+                      href={item.file ? asset(item.href) : item.href}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="type-display-lg hover:text-volt transition-colors duration-300"
