@@ -2,25 +2,33 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { ViewportFrame, FrameMark } from "./ViewportFrame";
 import { HudBar, type Readout } from "./HudBar";
 import { MonoLabel } from "@/components/primitives/MonoLabel";
 import { LEAGUE } from "@/components/data/league";
+import { DASH_RESET } from "@/lib/dashEvents";
 
 /**
- * `href` is "#" for the sections that are still placeholders. Real routes go
- * through next/link so `basePath` is applied — a literal "/dash" would 404 on
- * GitHub Pages, which serves the site from a subdirectory.
+ * Only what actually goes somewhere. Every other entry used to be `href="#"`,
+ * which closed the menu and left you exactly where you were — the reason the
+ * dash felt like a room with no door.
+ *
+ * An item with no `href` renders as plainly unavailable rather than as a link
+ * that silently does nothing. A dead link is worse than an honest one.
  */
-const NAV = [
-  { label: "Rulebook", href: "#" },
-  { label: "Standings", href: "#" },
+const NAV: { label: string; href?: string; external?: boolean }[] = [
   { label: "40-Yard Dash", href: "/dash" },
-  { label: "Recaps", href: "#" },
-  { label: "Keepers", href: "#" },
-  { label: "Draft Board", href: "#" },
+  { label: "Constitution" },
+  { label: "Draft Board" },
 ];
+
+/** `trailingSlash: true` means the live path is "/dash/" but hrefs are "/dash". */
+function samePath(pathname: string, href: string): boolean {
+  const trim = (v: string) => (v.length > 1 ? v.replace(/\/+$/, "") : v);
+  return trim(pathname) === trim(href);
+}
 
 /**
  * Persistent chrome: the frame, the wordmark on its top edge, the telemetry
@@ -29,11 +37,26 @@ const NAV = [
  */
 export function SiteChrome({ left, right }: { left: Readout[]; right: Readout[] }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  /**
+   * Tapping the entry for the page you are already on is a no-op as far as the
+   * router is concerned — nothing remounts, so the dash stayed frozen on
+   * whatever screen it was showing. Ask it to start over instead.
+   */
+  function handleNav(href: string) {
+    setMenuOpen(false);
+    if (samePath(pathname, href)) {
+      window.dispatchEvent(new Event(DASH_RESET));
+    }
+  }
 
   return (
     <>
       <ViewportFrame>
-        <FrameMark label={LEAGUE.name.toUpperCase()} />
+        {/* Not uppercased any more: this is the link's accessible name rather
+            than drawn type, and some screen readers spell out all-caps. */}
+        <FrameMark label={LEAGUE.name} />
       </ViewportFrame>
 
       <AnimatePresence>
@@ -57,14 +80,22 @@ export function SiteChrome({ left, right }: { left: Readout[]; right: Readout[] 
                     delay: i * 0.06,
                     ease: [0.16, 1, 0.3, 1],
                   }}
+                  className="flex items-baseline gap-x-3"
                 >
-                  <Link
-                    href={item.href}
-                    className="type-display-lg hover:text-volt transition-colors duration-300"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
+                  {item.href ? (
+                    <Link
+                      href={item.href}
+                      className="type-display-lg hover:text-volt transition-colors duration-300"
+                      onClick={() => handleNav(item.href!)}
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <>
+                      <span className="type-display-lg opacity-25">{item.label}</span>
+                      <MonoLabel className="opacity-40">SOON</MonoLabel>
+                    </>
+                  )}
                 </motion.div>
               ))}
               <div className="mt-12">

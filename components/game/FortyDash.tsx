@@ -38,6 +38,7 @@ import {
   subscribe,
 } from "@/lib/dashStore";
 import { hasPin } from "@/lib/dashAuth";
+import { DASH_RESET } from "@/lib/dashEvents";
 
 /**
  * The 40-yard dash.
@@ -175,6 +176,26 @@ export function FortyDash({
   }
 
   /**
+   * Reopening the dash from the menu while already on the page should put the
+   * player back at the board rather than leaving them wherever they were.
+   *
+   * A run in flight is deliberately not refunded: the attempt was spent at the
+   * gun, and walking away from it is the same as any other bail.
+   */
+  useEffect(() => {
+    function onReset() {
+      run.current = createRun();
+      settled.current = false;
+      setScreen("lobby");
+      setStarted(false);
+      setResult(null);
+      setFlash(null);
+    }
+    window.addEventListener(DASH_RESET, onReset);
+    return () => window.removeEventListener(DASH_RESET, onReset);
+  }, []);
+
+  /**
    * An official run has to be claimed by somebody before it starts, so the
    * PIN gate stands between the button and the blocks. Nothing is spent here:
    * the attempt is only burned once the run actually begins.
@@ -213,6 +234,11 @@ export function FortyDash({
         paddingRight: "var(--frame-inset)",
         paddingTop: "calc(var(--frame-inset) + 44px)",
         paddingBottom: "var(--frame-bottom)",
+        // The pads block their own gestures, but a fast tap landing just off
+        // one lands here — and a double-tap zoom triggered mid-sprint persists
+        // after you navigate away, which is what makes the whole site look
+        // stuck afterwards. `manipulation` drops the zoom, keeps scrolling.
+        touchAction: "manipulation",
       }}
     >
       {/* Live telemetry. Values are written straight to the DOM by the frame
@@ -511,6 +537,11 @@ function Controls({
           Board
         </PillButton>
       )}
+      {/* The logo in the frame already goes home, but nobody should have to
+          discover that to leave a full-screen game. */}
+      <PillButton variant="outline" href="/">
+        Exit
+      </PillButton>
     </div>
   );
 }
